@@ -25,7 +25,7 @@ function get_users(object $conn): array
 
     return $users;
 }
-
+ 
 
 /**
  * Return transactions balances of given user.
@@ -37,50 +37,70 @@ function get_users(object $conn): array
  */
 function get_user_transactions_balances(int $user_id, object $conn): array
 {
+    $user_accounts = get_user_accounts($user_id, $conn);
+    print_r($user_accounts);
+
      $transactions = array();
      $statement = $conn->query("
-        SELECT * FROM `user_accounts`
+        SELECT *
+        FROM `user_accounts`
         LEFT JOIN `transactions` ON `user_accounts`.`id` = `transactions`.`account_from`
             OR `user_accounts`.`id` = `transactions`.`account_to`
-        WHERE `user_accounts`.`user_id` = " . $user_id 
-    );
+        WHERE `user_accounts`.`user_id` = $user_id
+        GROUP BY `transactions`.`id`
+    ");
 
     while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
-        // $transactions[$row["id"]] = $row["name"];
         $row['month'] = month_regexp($row['trdate']);
-        print_r($row);
-        echo '<br/>';
+        
+        if (
+            in_array($row['account_from'], $user_accounts) &&
+            in_array($row['account_to'], $user_accounts)
+
+        ) {
+            $row['action'] = 'self';
+        }
+
+        if (
+            in_array($row['account_from'], $user_accounts) &&
+            !in_array($row['account_to'], $user_accounts)
+        ) {
+            $row['action'] = 'send';
+        }
+
+        if (
+            !in_array($row['account_from'], $user_accounts) &&
+            in_array($row['account_to'], $user_accounts)
+        ) {
+            $row['action'] = 'receive';
+        }
+
+
+        $transactions[] = $row;
     }
 
     return $transactions;
 }
 
-function get_user_transactions(int $user_id, object $conn): array
+function get_user_accounts(int $user_id, object $conn): array
 {
-    $transactions = array();
-    $statement = $conn->query('
-        SELECT * FROM `transactions`
-        WHERE `account_from` = ' . $user_id . ' OR `account_to` = ' . $user_id
-    );
-    
+    $accounts = array();
+    $statement = $conn->query("
+        SELECT *
+        FROM `user_accounts`
+        WHERE `user_accounts`.`user_id` = $user_id
+    ");
+
     while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
-        $row['month'] = month_regexp($row['trdate']);
-
-        if ($row['account_to'] == $user_id) {
-            $row['reciever'] = 'true';
-        } else {
-            $row['reciever'] = 'false';
-        }
-
-        array_push($transactions, $row);
+        $accounts[] = $row['id'];
     }
 
-    return $transactions;
+    return $accounts;
 }
 
 function month_regexp(string $date): string
 {
-    preg_match('/\d{4}-(\d{2})-\d{2} \d{2}:\d{2}:\d{2}/', $date, $matches);
+    $regexp = preg_match('/\d{4}-(\d{2})-\d{2} \d{2}:\d{2}:\d{2}/', $date, $matches);
     $month = $matches[1];
     return $month;
 }

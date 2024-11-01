@@ -18,10 +18,15 @@ submit_btn.onclick = function (e) {
 
     
   // TODO: implement
-  data_table.style.display = "block";
+  // data_table.style.display = "block";
   // alert("Not implemented");
 };
 
 function renderData(data) {
+  data.forEach(element => {
+    console.log(element);
+    
+  });
+  
   // TODO: render rows in table
 }
