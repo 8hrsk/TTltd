@@ -25,7 +25,16 @@ if ($user_id) {
         $monthly_transactions[$transaction['month']][] = $transaction;
     }
 
+    // task modification. Add total transactions per every month
+    $transactions_per_month = array();
+    foreach($monthly_transactions as $month => $transaction) {
+        $transactions_per_month[$month] = count($monthly_transactions[$month]);
+    }
+
+    // print_r($transactions_per_month);
+
     // Calculate monthly balance
+    $monthly_transactions_balance = array();
     foreach ($monthly_transactions as $month => $transactions) {
         $monthly_balance = 0;
         foreach ($transactions as $key => $transaction) {
@@ -40,9 +49,13 @@ if ($user_id) {
                 $monthly_balance -= $transaction['amount'];
             }
         }
-        $monthly_transactions[$month] = $monthly_balance;
+
+        // $monthly_transactions[$month]['amount'] = $monthly_balance;
+        // $monthly_transactions['total'] = $transactions_per_month[$month];
+        $monthly_transactions_balance[$month]['balance'] = $monthly_balance;
+        $monthly_transactions_balance[$month]['amount'] = $transactions_per_month[$month];
     }
     
     header('Content-Type: application/json');
-    echo json_encode($monthly_transactions);
+    echo json_encode($monthly_transactions_balance);
 }

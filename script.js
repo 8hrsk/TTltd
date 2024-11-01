@@ -24,17 +24,23 @@ function render_data(user_id, data) {
   
   clear_table();
 
-  for (const [ month, balance ] of Object.entries(data)) {
-    create_row(month, balance);
+  const months = Array();
+  for (const month of Object.entries(data)) {
+    months.push(month);
   }
+
+  months.forEach(month => {
+    create_row(month[0], month[1].balance, month[1].amount);
+  });
   
   data_table.style.display = "block";
 }
 
-function create_row(month, balance) {
+function create_row(month, balance, total) {
     const rowData = `
     <td>${month}</td>
     <td>${balance}</td>
+    <td>${total}</td>
   `;
 
   const row = document.createElement("tr");

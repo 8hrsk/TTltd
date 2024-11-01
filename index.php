@@ -21,16 +21,20 @@ $conn = get_connect();
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
   <h1>User transactions information</h1>
+
   <form action="data.php" method="get">
     <label for="user">Select user:</label>
     <select name="user" id="user">
+
     <?php
     $users = get_users($conn);
     foreach ($users as $id => $name) {
         echo "<option value=\"$id\">".$name."</option>";
     }
     ?>
+
     </select>
     <input id="submit" type="submit" value="Show">
   </form>
@@ -38,8 +42,12 @@ $conn = get_connect();
   <div id="data">
       <h2>Transactions of `User name`</h2>
       <table>
-          <tr><th>Mounth</th><th>Amount</th></tr>
-          <tr><td>...</td><td>...</td>
+          <tr>
+            <th>Mounth</th>
+            <th>Amount</th>
+            <th>Total</th>
+          </tr>
+          <tr><td>...</td><td>...</td><td>...</td>
        </table>
   </div>  
 <script src="script.js"></script>

@@ -12,11 +12,11 @@ function get_users(object $conn): array
 {
     $users = array();
     $statement = $conn->query("
-        SELECT DISTINCT`users`.`id`, `users`.`name` FROM `users`
-        LEFT JOIN `user_accounts` ON `users`.`id` = `user_accounts`.`user_id`
-        RIGHT JOIN `transactions` ON `user_accounts`.`id` = `transactions`.`account_from`
-            OR `user_accounts`.`id` = `transactions`.`account_to`
-        GROUP BY `users`.`id`
+SELECT DISTINCT `users`.`id`, `users`.`name` 
+FROM `users`
+JOIN `user_accounts` ON `users`.`id` = `user_accounts`.`user_id`
+JOIN `transactions` ON `user_accounts`.`id` = `transactions`.`account_from` OR `user_accounts`.`id` = `transactions`.`account_to`
+GROUP BY `users`.`id`
     ");
 
     while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
