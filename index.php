@@ -6,14 +6,6 @@ include_once('test.php');
 
 $conn = get_connect();
 
-$month_names = [
-  '01' => 'January',
-  '02' => 'Februarry',
-  '03' => 'March'
-];
-
-$lol = get_users($conn);
-
 // Uncomment to see data in db
 // run_db_test($conn);
 

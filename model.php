@@ -38,7 +38,6 @@ function get_users(object $conn): array
 function get_user_transactions_balances(int $user_id, object $conn): array
 {
     $user_accounts = get_user_accounts($user_id, $conn);
-    print_r($user_accounts);
 
      $transactions = array();
      $statement = $conn->query("
@@ -56,7 +55,6 @@ function get_user_transactions_balances(int $user_id, object $conn): array
         if (
             in_array($row['account_from'], $user_accounts) &&
             in_array($row['account_to'], $user_accounts)
-
         ) {
             $row['action'] = 'self';
         }
@@ -75,13 +73,20 @@ function get_user_transactions_balances(int $user_id, object $conn): array
             $row['action'] = 'receive';
         }
 
-
         $transactions[] = $row;
     }
 
     return $transactions;
 }
 
+/**
+ * Return all user accounts of given user.
+ * 
+ * @param int $user_id The ID of the user whose accounts are to be retrieved.
+ * @param object $conn The database connection.
+ *
+ * @return array An array of user accounts.
+ */
 function get_user_accounts(int $user_id, object $conn): array
 {
     $accounts = array();
@@ -98,9 +103,24 @@ function get_user_accounts(int $user_id, object $conn): array
     return $accounts;
 }
 
+
+/**
+ * Extracts the month from a given date string, using a regular expression.
+ *
+ * @param string $date The date string from which to extract the month.
+ *
+ * @return string The month (as a two-digit string) extracted from the given date.
+ *
+ * @throws Exception If the date string is invalid or if an error occurs during regular expression matching.
+ */
 function month_regexp(string $date): string
 {
     $regexp = preg_match('/\d{4}-(\d{2})-\d{2} \d{2}:\d{2}:\d{2}/', $date, $matches);
-    $month = $matches[1];
-    return $month;
+
+    if ($regexp !== 1) {
+        $exception = new Exception("Invalid date format or an error occured. Date: $date");
+        throw $exception;
+    }
+
+    return $matches[1];
 }
