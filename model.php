@@ -1,13 +1,22 @@
 <?php
 
+
 /**
- * Return list of users.
+ * Return all users with at least one transaction.
+ *
+ * @param object $conn The database connection.
+ *
+ * @return array The array where the key is the user id and the value is the user name.
  */
 function get_users(object $conn): array
 {
     $users = array();
     $statement = $conn->query("
-        SELECT * FROM `users`
+        SELECT DISTINCT`users`.`id`, `users`.`name` FROM `users`
+        LEFT JOIN `user_accounts` ON `users`.`id` = `user_accounts`.`user_id`
+        RIGHT JOIN `transactions` ON `user_accounts`.`id` = `transactions`.`account_from`
+            OR `user_accounts`.`id` = `transactions`.`account_to`
+        GROUP BY `users`.`id`
     ");
 
     while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
@@ -17,29 +26,37 @@ function get_users(object $conn): array
     return $users;
 }
 
+
 /**
  * Return transactions balances of given user.
+ * 
+ * @param int $user_id The ID of the user whose transactions are to be retrieved.
+ * @param object $conn The database connection.
+ *
+ * @return array An array of transactions.
  */
 function get_user_transactions_balances(int $user_id, object $conn): array
-{     
-    $user_transactions = get_user_transactions($user_id, $conn);
+{
+     $transactions = array();
+     $statement = $conn->query("
+        SELECT * FROM `user_accounts`
+        LEFT JOIN `transactions` ON `user_accounts`.`id` = `transactions`.`account_from`
+            OR `user_accounts`.`id` = `transactions`.`account_to`
+        WHERE `user_accounts`.`user_id` = " . $user_id 
+    );
 
-    $balances = array();
-    foreach ($user_transactions as $transaction) {
-        $balances[$transaction['month']] = $balances[$transaction['month']] ?? 0;
-        if ($transaction['reciever'] == 'true') {
-            $balances[$transaction['month']] += $transaction['amount'];
-        } else {
-            $balances[$transaction['month']] -= $transaction['amount'];
-        }
+    while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
+        // $transactions[$row["id"]] = $row["name"];
+        $row['month'] = month_regexp($row['trdate']);
+        print_r($row);
+        echo '<br/>';
     }
 
-    return $balances;
+    return $transactions;
 }
 
 function get_user_transactions(int $user_id, object $conn): array
 {
-
     $transactions = array();
     $statement = $conn->query('
         SELECT * FROM `transactions`
@@ -63,7 +80,7 @@ function get_user_transactions(int $user_id, object $conn): array
 
 function month_regexp(string $date): string
 {
-    $regexp = preg_match('/\d{4}-(\d{2})-\d{2} \d{2}:\d{2}:\d{2}/', $date, $matches);
+    preg_match('/\d{4}-(\d{2})-\d{2} \d{2}:\d{2}:\d{2}/', $date, $matches);
     $month = $matches[1];
     return $month;
 }

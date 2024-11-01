@@ -12,6 +12,7 @@ $month_names = [
   '03' => 'March'
 ];
 
+$lol = get_users($conn);
 
 // Uncomment to see data in db
 // run_db_test($conn);

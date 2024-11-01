@@ -13,9 +13,10 @@ submit_btn.onclick = function (e) {
 
   fetch('/data.php/?user=' + user_id)
     .then(response => response.json())
-    .then(data => console.log(data))
+    .then(data => renderData(data))
     .catch(error => console.error('Error:', error));
 
+    
   // TODO: implement
   data_table.style.display = "block";
   // alert("Not implemented");
