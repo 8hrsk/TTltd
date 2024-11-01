@@ -51,7 +51,7 @@ function get_user_transactions_balances(int $user_id, object $conn): array
 
     while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
         $row['month'] = month_regexp($row['trdate']);
-        
+        // Set action type
         if (
             in_array($row['account_from'], $user_accounts) &&
             in_array($row['account_to'], $user_accounts)
