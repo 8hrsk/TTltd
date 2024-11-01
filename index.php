@@ -6,15 +6,18 @@ include_once('test.php');
 
 $conn = get_connect();
 
+$month_names = [
+  '01' => 'January',
+  '02' => 'Februarry',
+  '03' => 'March'
+];
+
+
 // Uncomment to see data in db
 // run_db_test($conn);
-  
-$month_names = [
-    '01' => 'January',
-    '02' => 'Februarry',
-    '03' => 'March'
-]
+
 ?>
+
     
 <!DOCTYPE html>
 <html lang="ru">
